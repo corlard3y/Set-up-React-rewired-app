@@ -1,46 +1,77 @@
-# Getting Started with Create React App
+I have made some findings about the issue you are facing, and I have come up with some steps to resolve this
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+What causes the Polyfill node core module error?
+Until the latest update to webpack version ___, webpack < 5 used to include NodeJS polyfills by default. Because the current version of webpack no longer includes NodeJS polyfills by default, it is causing issues for developers that use create-react-app with webpack > 5 to build applications with web3.js and web3 packages and libraries
 
-## Available Scripts
 
-In the project directory, you can run:
+1. Install react-app-rewired
+First, install the reach-app-rewired package with your preferred package manager.
 
-### `npm start`
+ ## `yarn add --dev react-app-rewired`
+ ## `npm install --save-dev react-app-rewired`
+ 
+2. Install missing dependencies
+Next, install these missing dependencies:
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+## `yarn add crypto-browserify stream-browserify assert stream-http https-browserify os-browserify url browserify-zlib tls-browserify net-browserify path-browserify`
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+3. Override the create-react-app webpack config file
+In the root folder of your project, create a new file called config-overrides.js, and add the following code to it:
 
-### `npm test`
+## `const webpack = require("webpack");
+module.exports = function override(config) {
+  const fallback = config.resolve.fallback  {};
+  Object.assign(fallback, {
+    crypto: require.resolve("crypto-browserify"),
+    stream: require.resolve("stream-browserify"),
+    assert: require.resolve("assert"),
+    http: require.resolve("stream-http"),
+    https: require.resolve("https-browserify"),
+    os: require.resolve("os-browserify"),
+    url: require.resolve("url"),
+    zlib: require.resolve("browserify-zlib"),
+    tls: require.resolve("tls-browserify"),
+    net: require.resolve("net-browserify"),
+    child_process: false,
+    path: require.resolve("path-browserify"),
+    util: require.resolve("util/"),
+    fs: false,
+  });
+  config.resolve.fallback = fallback;
+  config.plugins = (config.plugins  []).concat([
+    new webpack.ProvidePlugin({
+      process: "process/browser",
+      Buffer: ["buffer", "Buffer"],
+    }),
+  ]);
+  return config;
+};`
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
 
-### `npm run build`
+4. Override package.json to include the webpack configuration
+Within the package.json file, replace react-scripts with react-app-rewired scripts for the three following scripts fields to update the webpack configuration:
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+start
+build
+test
+Here’s what the package.json file looks like before replacing the react-scripts:
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+## `"scripts": { 
+  "start": "react-scripts start", 
+  "build": "react-scripts build", 
+  "test": "react-scripts test", 
+  "eject": "react-scripts eject" 
+ },`
+ 
+ Here’s the package.json file after replacing the react-scripts with react-app-rewired scripts:
+ 
+ ## `"scripts": { 
+  "start": "react-app-rewired start", 
+  "build": "react-app-rewired build", 
+  "test": "react-app-rewired test", 
+  "eject": "react-scripts eject" 
+ },`
+ 
+That’s it!
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
-
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
-
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
+Now, the polyfill node core module error should be fixed, missing NodeJS polyfills should be included in your app, and your app should work with the restapi packages and other web3 libraries
