@@ -7,18 +7,27 @@ Until the latest update to webpack version ___, webpack < 5 used to include Node
 1. Install react-app-rewired
 First, install the reach-app-rewired package with your preferred package manager.
 
- ## `yarn add --dev react-app-rewired`
- ## `npm install --save-dev react-app-rewired`
+```bash
+yarn add --dev react-app-rewired`
+```
+
+```bash
+ npm install --save-dev react-app-rewired
+```
  
 2. Install missing dependencies
 Next, install these missing dependencies:
 
-## `yarn add crypto-browserify stream-browserify assert stream-http https-browserify os-browserify url browserify-zlib tls-browserify net-browserify path-browserify`
+```bash
+yarn add crypto-browserify stream-browserify assert stream-http https-browserify os-browserify url browserify-zlib tls-browserify net-browserify path-browserify 
+```
 
 3. Override the create-react-app webpack config file
 In the root folder of your project, create a new file called config-overrides.js, and add the following code to it:
 
-## `const webpack = require("webpack");
+
+```bash
+const webpack = require("webpack");
 module.exports = function override(config) {
   const fallback = config.resolve.fallback  {};
   Object.assign(fallback, {
@@ -45,7 +54,9 @@ module.exports = function override(config) {
     }),
   ]);
   return config;
-};`
+};
+```
+
 
 
 4. Override package.json to include the webpack configuration
@@ -56,21 +67,25 @@ build
 test
 Here’s what the package.json file looks like before replacing the react-scripts:
 
-## `"scripts": { 
+```bash
+"scripts": { 
   "start": "react-scripts start", 
   "build": "react-scripts build", 
   "test": "react-scripts test", 
   "eject": "react-scripts eject" 
- },`
+ },
+ ```
  
  Here’s the package.json file after replacing the react-scripts with react-app-rewired scripts:
  
- ## `"scripts": { 
+```bash
+ "scripts": { 
   "start": "react-app-rewired start", 
   "build": "react-app-rewired build", 
   "test": "react-app-rewired test", 
   "eject": "react-scripts eject" 
- },`
+ },
+ ```
  
 That’s it!
 
